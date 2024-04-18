@@ -4,35 +4,54 @@ import { useState } from "react";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
-  const [texts, setTexts] = useState([]); // This will store all the generated story parts
-  const [currentPage, setCurrentPage] = useState(1); // Tracks the current page
+  const [texts, setTexts] = useState([]); // Store generated story parts
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentFork, setCurrentFork] = useState("main"); // Handle different story forks
 
-  const handleInputChange = (e) => {
-    setInputText(e.target.value);
+  const handleInputChange = (e) => setInputText(e.target.value);
+
+  const fetchStory = async (text, page, forkId) => {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        inputText: text,
+        page: page,
+        forkId: forkId,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      setTexts(
+        texts.concat({
+          content: data.result,
+          page: data.page,
+          forkId: data.forkId,
+        })
+      );
+      setCurrentPage(data.page + 1);
+    } else {
+      console.error("Failed to fetch story:", data.error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (inputText.trim()) {
-      // Send the current page along with the input text
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputText: inputText, page: currentPage }),
-      });
+    const text = inputText.trim() ? inputText : ""; // Directly use inputText
+    if (!text) return;
 
-      const data = await response.json();
+    await fetchStory(text, currentPage, currentFork);
+    setInputText("");
+  };
 
-      if (response.ok) {
-        setTexts(texts.concat({ content: data.result, page: data.page })); // Add the new story part to the existing texts
-        setCurrentPage(currentPage + 1); // Increment the page for the next submission
-      } else {
-        console.error("Failed to fetch story:", data.error);
-      }
-
-      setInputText(""); // Clear the input field after submission
+  const handleFork = async (page, forkId) => {
+    const newForkId = forkId + "-fork" + new Date().getTime(); // Create a new unique fork ID
+    setCurrentFork(newForkId);
+    setCurrentPage(page);
+    const userForkInput = prompt("Enter your input for the new fork:");
+    if (userForkInput) {
+      await fetchStory(userForkInput, page, newForkId); // Directly use the fork input to fetch story
     }
   };
 
@@ -62,7 +81,13 @@ export default function Home() {
             key={index}
             className="text-center p-2 bg-gray-100 rounded shadow"
           >
-            {item.content} (Page: {item.page})
+            {item.content} (Page: {item.page}, Fork: {item.forkId})
+            <button
+              onClick={() => handleFork(item.page + 1, item.forkId)}
+              className="mt-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-700"
+            >
+              Fork
+            </button>
           </div>
         ))}
       </div>
