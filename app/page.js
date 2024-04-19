@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { FaSpinner } from "react-icons/fa"; // Import spinner icon
+import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "./components/LoadingSpinner";
+import StoryCard from "./components/StoryCard";
+import ForkModal from "./components/ForkModal";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
@@ -91,72 +94,23 @@ export default function Home() {
         </button>
       </form>
 
-      {isLoading && (
-        <div className="flex justify-center items-center">
-          <FaSpinner className="animate-spin text-4xl text-white" />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner />}
 
-      {showModal && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-5 rounded-lg">
-          <h2 className="text-lg text-white mb-2">
-            Enter input for the new fork:
-          </h2>
-          <form onSubmit={handleForkSubmit}>
-            <input
-              type="text"
-              value={forkInput}
-              onChange={handleForkInputChange}
-              placeholder="New fork input..."
-              className="form-input mt-1 block w-full rounded-md bg-gray-700 border-gray-600"
-            />
-            <button
-              type="submit"
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
-            >
-              Submit Fork
-            </button>
-          </form>
-          <button
-            onClick={() => setShowModal(false)}
-            className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
-          >
-            Close
-          </button>
-        </div>
-      )}
+      <ForkModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onForkSubmit={handleForkSubmit}
+        forkInput={forkInput}
+        handleForkInputChange={handleForkInputChange}
+      />
 
       <div className="mt-8 w-full max-w-lg space-y-4">
         {texts.map((item, index) => (
-          <article
+          <StoryCard
             key={index}
-            className="p-4 bg-gray-800 rounded shadow-xl border border-gray-700"
-          >
-            <h2 className="text-lg font-semibold text-blue-300 mb-2">
-              Page {item.page} - Fork: {item.forkId}
-            </h2>
-            <img
-              src={item.imageUrl}
-              alt="Generated visual representation"
-              className="w-full h-auto rounded my-2"
-            />
-            <p className="text-gray-400">{item.content}</p>
-            <span className="text-blue-300">Arweave ID: </span>
-            <a
-              href={`https://arweave.net/${item.arweaveId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-300 hover:underline"
-            >
-              {item.arweaveId}
-            </a>
-            <button
-              onClick={() => handleForkClick(item.page + 1, item.forkId)}
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
-            >
-              Fork
-            </button>
-          </article>
+            item={item}
+            onFork={() => handleForkClick(item.page + 1, item.forkId)}
+          />
         ))}
       </div>
     </main>
