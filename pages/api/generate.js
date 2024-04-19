@@ -3,7 +3,6 @@ import { writeFile, readFile } from "fs/promises";
 import { join } from "path";
 import Irys from "@irys/sdk";
 import fs from "fs";
-import axios from "axios"; // Ensure axios is installed for HTTP requests
 
 const privateKey = process.env.PRIVATE_KEY;
 const infuraId = process.env.INFURA_ID;
@@ -30,6 +29,12 @@ async function generateImage(prompt) {
       n: 1,
       size: "1024x1024",
     });
+
+    // log the prompt passed to the image generation API
+    console.log(
+      "Prompt passed to the IMAGE generation API:",
+      `Create an image that visually represents this story: ${prompt}`
+    );
     return response.data[0].url; // Returning URL of the generated image
   } catch (error) {
     console.error("Failed to generate image:", error);
@@ -66,10 +71,10 @@ export default async function handler(req, res) {
 
       const promptText =
         pageIndex > 1
-          ? `The story already has started and it currently has ${
+          ? `Your role is to continue the story inspired by the following user input. The story already has started and it currently has ${
               pageIndex - 1
-            } pages. Here are the current pages of the story:\n\n${storyContent}Your role is to continue the story inspired by the following user input, ensuring your output has a limit of 300 characters:\n\n${inputText}`
-          : `Your role is to create a history inspired by an input from the user, your output should have a limit of 200 characters. The input from the user is:\n\n${inputText}`;
+            } pages. Here are the current entire story text:\n\n${storyContent}. ##### Continue the story inspired by the following user input, ensuring your output has a limit of 300 characters:\n\n${inputText}`
+          : `Your role is to create a story inspired by an input from the user, your output should have a limit of 300 characters. The input from the user is:\n\n${inputText}`;
 
       const completion = await openai.chat.completions.create({
         messages: [
@@ -79,8 +84,11 @@ export default async function handler(req, res) {
         model: "gpt-4-turbo",
       });
 
+      // log the prompt passed to the generate the text story
+      console.log("Prompt passed to the TEXT generation API:", promptText);
+
       storyContent = completion.choices[0].message.content;
-      const imagePrompt = `Page ${pageIndex}: ${storyContent}`; // Prompt for the image
+      const imagePrompt = `${storyContent}`;
       const imageUrl = await generateImage(imagePrompt);
 
       const storyData = {
