@@ -29,6 +29,9 @@ yarn-error.log*
 .env*.local
 .env
 
+walletFile.json
+JVlEkb_FBd5M6HB54PdZ7ommxEV4fJK5Tfaby22yjHI.json
+
 # vercel
 .vercel
 
