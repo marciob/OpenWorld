@@ -52,7 +52,7 @@ export default function Home() {
     const text = inputText.trim() ? inputText : "";
     if (!text) return;
 
-    await fetchStory(text, texts.length + 1, currentFork); // Dynamically setting page based on current stories
+    await fetchStory(text, texts.length + 1, currentFork);
     setInputText("");
   };
 
@@ -63,9 +63,9 @@ export default function Home() {
     const newForkId = currentFork + "-fork" + new Date().getTime();
     setCurrentFork(newForkId);
 
-    await fetchStory(forkInput, texts.length + 1, newForkId); // Set correct page for fork
+    setShowModal(false); // Close modal immediately upon form submission
+    await fetchStory(forkInput, texts.length + 1, newForkId);
     setForkInput("");
-    setShowModal(false);
   };
 
   const handleForkClick = (page, forkId) => {
@@ -107,7 +107,7 @@ export default function Home() {
             key={index}
             item={item}
             onFork={() => handleForkClick(item.page, item.forkId)}
-            isLatestPage={index === texts.length - 1} // Adjusted to check if it's the last item in the array
+            isLatestPage={index === texts.length - 1}
           />
         ))}
       </div>
