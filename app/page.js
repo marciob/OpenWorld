@@ -9,16 +9,10 @@ import ForkModal from "./components/ForkModal";
 export default function Home() {
   const [inputText, setInputText] = useState("");
   const [texts, setTexts] = useState([]); // Store generated story parts
-  const [currentPage, setCurrentPage] = useState(1);
   const [currentFork, setCurrentFork] = useState("main"); // Handle different story forks
   const [showModal, setShowModal] = useState(false);
   const [forkInput, setForkInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State to handle loading
-
-  // Effect to update currentPage whenever texts change
-  useEffect(() => {
-    setCurrentPage(texts.length + 1); // +1 because page count starts at 1
-  }, [texts]);
 
   const handleInputChange = (e) => setInputText(e.target.value);
   const handleForkInputChange = (e) => setForkInput(e.target.value);
@@ -38,15 +32,16 @@ export default function Home() {
     const data = await response.json();
     setIsLoading(false); // Stop loading
     if (response.ok) {
-      setTexts(
-        texts.concat({
+      setTexts((prevTexts) => [
+        ...prevTexts,
+        {
           content: data.result,
           page: data.page,
           forkId: data.forkId,
           arweaveId: data.arweaveId,
           imageUrl: data.image,
-        })
-      );
+        },
+      ]);
     } else {
       console.error("Failed to fetch story:", data.error);
     }
@@ -57,7 +52,7 @@ export default function Home() {
     const text = inputText.trim() ? inputText : "";
     if (!text) return;
 
-    await fetchStory(text, currentPage, currentFork);
+    await fetchStory(text, texts.length + 1, currentFork); // Dynamically setting page based on current stories
     setInputText("");
   };
 
@@ -67,15 +62,13 @@ export default function Home() {
 
     const newForkId = currentFork + "-fork" + new Date().getTime();
     setCurrentFork(newForkId);
-    setCurrentPage(currentPage);
 
-    await fetchStory(forkInput, currentPage, newForkId);
+    await fetchStory(forkInput, texts.length + 1, newForkId); // Set correct page for fork
     setForkInput("");
     setShowModal(false);
   };
 
   const handleForkClick = (page, forkId) => {
-    setCurrentPage(page);
     setShowModal(true);
   };
 
@@ -113,8 +106,8 @@ export default function Home() {
           <StoryCard
             key={index}
             item={item}
-            onFork={() => handleForkClick(item.page + 1, item.forkId)}
-            isLatestPage={item.page === currentPage - 1} // Adjust condition based on current number of texts
+            onFork={() => handleForkClick(item.page, item.forkId)}
+            isLatestPage={index === texts.length - 1} // Adjusted to check if it's the last item in the array
           />
         ))}
       </div>
