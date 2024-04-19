@@ -56,14 +56,14 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white bg-black">
       <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-4">
         <input
           type="text"
           value={inputText}
           onChange={handleInputChange}
           placeholder="Enter some text..."
-          className="form-input mt-1 block w-full rounded-md"
+          className="form-input mt-1 block w-full rounded-md bg-gray-800 border-gray-600"
         />
         <button
           type="submit"
@@ -75,18 +75,21 @@ export default function Home() {
 
       <div className="mt-8 w-full max-w-lg space-y-4">
         {texts.map((item, index) => (
-          <div
+          <article
             key={index}
-            className="text-center p-2 bg-gray-100 rounded shadow"
+            className="p-4 bg-gray-800 rounded shadow-xl border border-gray-700"
           >
-            {item.content} (Page: {item.page}, Fork: {item.forkId})
+            <h2 className="text-lg font-semibold text-blue-300 mb-2">
+              Page {item.page} - Fork: {item.forkId}
+            </h2>
+            <p className="text-gray-400">{item.content}</p>
             <button
               onClick={() => handleFork(item.page + 1, item.forkId)}
-              className="mt-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-700"
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
             >
               Fork
             </button>
-          </div>
+          </article>
         ))}
       </div>
     </main>
