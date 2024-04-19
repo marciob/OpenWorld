@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSpinner } from "react-icons/fa";
 import LoadingSpinner from "./components/LoadingSpinner";
 import StoryCard from "./components/StoryCard";
@@ -14,6 +14,11 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [forkInput, setForkInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State to handle loading
+
+  // Effect to update currentPage whenever texts change
+  useEffect(() => {
+    setCurrentPage(texts.length + 1); // +1 because page count starts at 1
+  }, [texts]);
 
   const handleInputChange = (e) => setInputText(e.target.value);
   const handleForkInputChange = (e) => setForkInput(e.target.value);
@@ -42,7 +47,6 @@ export default function Home() {
           imageUrl: data.image,
         })
       );
-      setCurrentPage(data.page + 1);
     } else {
       console.error("Failed to fetch story:", data.error);
     }
@@ -110,6 +114,7 @@ export default function Home() {
             key={index}
             item={item}
             onFork={() => handleForkClick(item.page + 1, item.forkId)}
+            isLatestPage={item.page === currentPage - 1} // Adjust condition based on current number of texts
           />
         ))}
       </div>
