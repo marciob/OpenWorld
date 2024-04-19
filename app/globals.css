@@ -1,3 +1,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap");
+
+html,
+body {
+  background-color: #000; /* Dark background for the universe theme */
+  color: #ccc; /* Light grey text for readability */
+  font-family: "Roboto Mono", monospace; /* Monospaced font for a techy feel */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+input,
+button,
+textarea {
+  background-color: #333; /* Dark elements for inputs and buttons */
+  color: #fff; /* White text for contrast */
+  border: 1px solid #555; /* Slightly lighter border for visibility */
+  outline: none;
+}
+
+button:hover {
+  background-color: #444; /* Lighter background on hover */
+}
+
+.form-input {
+  padding: 8px 16px;
+  border-radius: 4px; /* Rounded borders for a smooth appearance */
+}
+
+.rounded {
+  border-radius: 0.375rem; /* Consistent rounded corners */
+}
+
+.shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.bg-blue-500 {
+  background-color: #2563eb; /* Customizable color for primary buttons */
+}
+
+.bg-blue-700:hover {
+  background-color: #1d4ed8; /* Darker blue on hover for interactive feedback */
+}
+
+.bg-gray-100 {
+  background-color: #1a1a1a; /* Dark grey for backgrounds of elements like cards */
+}
+
+.bg-green-500 {
+  background-color: #22c55e; /* Green for success actions, like 'Fork' button */
+}
+
+.bg-green-700:hover {
+  background-color: #16a34a; /* Darker green on hover */
+}
