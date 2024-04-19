@@ -12,7 +12,7 @@ const irys = new Irys({
   token: "ethereum",
   key: privateKey,
   config: {
-    providerUrl: `https://sepolia.infura.io/v3/${INFURA_ID}`,
+    providerUrl: `https://sepolia.infura.io/v3/${infuraId}`,
   },
 });
 
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
           { role: "system", content: prompt },
           { role: "user", content: inputText },
         ],
-        model: "gpt-3.5-turbo",
+        model: "gpt-4-turbo",
       });
 
       storyContent = completion.choices[0].message.content;
