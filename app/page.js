@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import LoadingSpinner from "./components/LoadingSpinner";
 import StoryCard from "./components/StoryCard";
 import ForkModal from "./components/ForkModal";
+import NewWorldModal from "./components/NewWorldModal";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
   const [texts, setTexts] = useState([]); // Store generated story parts
   const [currentFork, setCurrentFork] = useState("main"); // Handle different story forks
-  const [showModal, setShowModal] = useState(false);
+  const [showNewWorldModal, setShowNewWorldModal] = useState(false); // Controls visibility of the new world modal
+  const [showForkModal, setShowForkModal] = useState(false); // Controls visibility of the fork modal
   const [forkInput, setForkInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State to handle loading
 
@@ -18,7 +20,9 @@ export default function Home() {
   const handleForkInputChange = (e) => setForkInput(e.target.value);
 
   const fetchStory = async (text, page, forkId) => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
+    setShowNewWorldModal(false); // Close modal immediately upon form submission
+    setShowForkModal(false); // Close modal immediately upon form submission
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,7 +34,7 @@ export default function Home() {
     });
 
     const data = await response.json();
-    setIsLoading(false); // Stop loading
+    setIsLoading(false);
     if (response.ok) {
       setTexts((prevTexts) => [
         ...prevTexts,
@@ -47,12 +51,11 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleNewWorldSubmit = async (e) => {
     e.preventDefault();
-    const text = inputText.trim() ? inputText : "";
-    if (!text) return;
+    if (!inputText) return;
 
-    await fetchStory(text, texts.length + 1, currentFork);
+    await fetchStory(inputText, 1, "main");
     setInputText("");
   };
 
@@ -63,50 +66,48 @@ export default function Home() {
     const newForkId = currentFork + "-fork" + new Date().getTime();
     setCurrentFork(newForkId);
 
-    setShowModal(false); // Close modal immediately upon form submission
     await fetchStory(forkInput, texts.length + 1, newForkId);
     setForkInput("");
   };
 
-  const handleForkClick = (page, forkId) => {
-    setShowModal(true);
-  };
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white bg-black">
-      <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-4">
-        <input
-          type="text"
-          value={inputText}
-          onChange={handleInputChange}
-          placeholder="Enter some text..."
-          className="form-input mt-1 block w-full rounded-md bg-gray-800 border-gray-600"
-          autoFocus
+      <button
+        onClick={() => setShowNewWorldModal(true)}
+        className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-700"
+      >
+        Mint a new world
+      </button>
+
+      {showNewWorldModal && (
+        <NewWorldModal
+          isOpen={showNewWorldModal}
+          onClose={() => setShowNewWorldModal(false)}
+          onSubmit={handleNewWorldSubmit}
+          inputText={inputText}
+          onInputChange={handleInputChange}
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-        >
-          Generate Story
-        </button>
-      </form>
+      )}
+
+      {showForkModal && (
+        <ForkModal
+          isOpen={showForkModal}
+          onClose={() => setShowForkModal(false)}
+          onForkSubmit={handleForkSubmit}
+          forkInput={forkInput}
+          handleForkInputChange={handleForkInputChange}
+        />
+      )}
 
       {isLoading && <LoadingSpinner />}
-
-      <ForkModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onForkSubmit={handleForkSubmit}
-        forkInput={forkInput}
-        handleForkInputChange={handleForkInputChange}
-      />
 
       <div className="mt-8 w-full max-w-lg space-y-4">
         {texts.map((item, index) => (
           <StoryCard
             key={index}
             item={item}
-            onFork={() => handleForkClick(item.page, item.forkId)}
+            onFork={() => setShowForkModal(true)}
+            onMintContinuation={() => setShowNewWorldModal(true)}
             isLatestPage={index === texts.length - 1}
           />
         ))}

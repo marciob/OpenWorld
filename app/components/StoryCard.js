@@ -1,4 +1,4 @@
-const StoryCard = ({ item, onFork, isLatestPage }) => (
+const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
   <article className="p-4 bg-gray-800 rounded shadow-xl border border-gray-700">
     <h2 className="text-lg font-semibold text-blue-300 mb-2">
       Page {item.page} - Fork: {item.forkId}
@@ -18,9 +18,16 @@ const StoryCard = ({ item, onFork, isLatestPage }) => (
     >
       {item.arweaveId}
     </a>
-    {!isLatestPage && ( // Only render the Fork button if it's not the latest page
+    {isLatestPage ? (
       <button
-        onClick={onFork}
+        onClick={onMintContinuation}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+      >
+        Mint a continuation
+      </button>
+    ) : (
+      <button
+        onClick={() => onFork(item.page, item.forkId)}
         className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
       >
         Fork
