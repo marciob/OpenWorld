@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         pageIndex > 1
           ? `The story already has started and it currently has ${
               pageIndex - 1
-            } pages. Here are the current pages of the story:\n\n${storyContent}Your role is to continue the story inspired by the following user input, ensuring your output has a limit of 200 characters:\n\n${inputText}`
+            } pages. Here are the current pages of the story:\n\n${storyContent}Your role is to continue the story inspired by the following user input, ensuring your output has a limit of 300 characters:\n\n${inputText}`
           : `Your role is to create a history inspired by an input from the user, your output should have a limit of 200 characters. The input from the user is:\n\n${inputText}`;
 
       const completion = await openai.chat.completions.create({
