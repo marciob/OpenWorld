@@ -62,12 +62,14 @@ export default async function handler(req, res) {
             "utf8"
           );
           const prevData = JSON.parse(prevContent);
-          storyContent += `Page ${pageIndex}: ${prevData.content}\n\n`;
+          storyContent += `${prevData.content}\n\n`;
           pageIndex++;
         } catch (error) {
           break;
         }
       }
+
+      console.log("PAGEINDEX:", pageIndex);
 
       const promptText =
         pageIndex > 1
