@@ -36,6 +36,7 @@ export default function Home() {
           page: data.page,
           forkId: data.forkId,
           arweaveId: data.arweaveId,
+          imageUrl: data.image,
         })
       );
       setCurrentPage(data.page + 1);
@@ -134,6 +135,11 @@ export default function Home() {
             <h2 className="text-lg font-semibold text-blue-300 mb-2">
               Page {item.page} - Fork: {item.forkId}
             </h2>
+            <img
+              src={item.imageUrl}
+              alt="Generated visual representation"
+              className="w-full h-auto rounded my-2"
+            />
             <p className="text-gray-400">{item.content}</p>
             <span className="text-blue-300">Arweave ID: </span>
             <a

@@ -3,9 +3,15 @@ import { writeFile, readFile } from "fs/promises";
 import { join } from "path";
 import Irys from "@irys/sdk";
 import fs from "fs";
+import axios from "axios"; // Ensure axios is installed for HTTP requests
 
 const privateKey = process.env.PRIVATE_KEY;
 const infuraId = process.env.INFURA_ID;
+const openaiKey = process.env.OPENAI_API_KEY;
+
+const openai = new OpenAI({
+  apiKey: openaiKey,
+});
 
 const irys = new Irys({
   url: "https://devnet.irys.xyz",
@@ -16,10 +22,24 @@ const irys = new Irys({
   },
 });
 
+async function generateImage(prompt) {
+  try {
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `Create an image that visually represents this story: ${prompt}`,
+      n: 1,
+      size: "1024x1024",
+    });
+    return response.data[0].url; // Returning URL of the generated image
+  } catch (error) {
+    console.error("Failed to generate image:", error);
+    throw new Error("Image generation failed.");
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     const { inputText, page = 1, forkId = "main" } = req.body;
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     try {
       let storyContent = "";
@@ -44,7 +64,7 @@ export default async function handler(req, res) {
         }
       }
 
-      const prompt =
+      const promptText =
         pageIndex > 1
           ? `The story already has started and it currently has ${
               pageIndex - 1
@@ -53,49 +73,41 @@ export default async function handler(req, res) {
 
       const completion = await openai.chat.completions.create({
         messages: [
-          { role: "system", content: prompt },
+          { role: "system", content: promptText },
           { role: "user", content: inputText },
         ],
         model: "gpt-4-turbo",
       });
 
       storyContent = completion.choices[0].message.content;
-      const filename = `story-${currentForkId}-${pageIndex}.json`;
+      const imagePrompt = `Page ${pageIndex}: ${storyContent}`; // Prompt for the image
+      const imageUrl = await generateImage(imagePrompt);
+
       const storyData = {
         content: storyContent,
         page: pageIndex,
         forkId: currentForkId,
-        timestamp: new Date().toISOString(), // Adding a timestamp for tracking
+        image: imageUrl, // Add the image URL to the story data
+        timestamp: new Date().toISOString(),
       };
 
-      // Validate the JSON structure or data integrity
-      if (!validateStoryData(storyData)) {
-        console.error("Invalid story data structure.");
-        return res.status(400).json({ error: "Invalid story data structure." });
-      }
-
-      const filePath = join(process.cwd(), "story", filename);
+      const filePath = join(
+        process.cwd(),
+        "story",
+        `story-${currentForkId}-${pageIndex}.json`
+      );
       await writeFile(filePath, JSON.stringify(storyData, null, 2));
 
-      // Convert JSON to Buffer with error handling
-      let dataBuffer;
-      try {
-        dataBuffer = Buffer.from(JSON.stringify(storyData));
-      } catch (error) {
-        console.error("Error converting story data to Buffer:", error);
-        return res.status(500).json({ error: "Failed to prepare story data." });
-      }
-
-      // Upload the data to Irys (Arweave)
+      const dataBuffer = Buffer.from(JSON.stringify(storyData));
       const transaction = await irys.upload(dataBuffer, {
         tags: { "Content-Type": "application/json" },
       });
 
-      // Success response with Arweave link
       if (transaction && transaction.id) {
         console.log("Upload successful. Transaction ID:", transaction.id);
         res.status(200).json({
           result: storyContent,
+          image: imageUrl,
           page: pageIndex,
           forkId: currentForkId,
           arweaveId: transaction.id,
@@ -113,10 +125,4 @@ export default async function handler(req, res) {
     res.setHeader("Allow", ["POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
-
-// Utility to validate the data structure
-function validateStoryData(data) {
-  // Implement validation logic based on your requirements
-  return data.content && data.page && data.forkId;
 }
