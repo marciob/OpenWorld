@@ -13,6 +13,7 @@ export default function Home() {
   const [texts, setTexts] = useState([]); // Store generated story parts
   const [currentFork, setCurrentFork] = useState("main"); // Handle different story forks
   const [showNewWorldModal, setShowNewWorldModal] = useState(false); // Controls visibility of the new world modal
+  const [isContinuation, setIsContinuation] = useState(false); // Determines if the modal is for continuation
   const [showForkModal, setShowForkModal] = useState(false); // Controls visibility of the fork modal
   const [forkInput, setForkInput] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State to handle loading
@@ -58,24 +59,22 @@ export default function Home() {
 
     await fetchStory(inputText, 1, "main");
     setInputText("");
+    setIsContinuation(false); // Reset the continuation flag
   };
 
-  const handleForkSubmit = async (e) => {
-    e.preventDefault();
-    if (!forkInput) return;
-
-    const newForkId = currentFork + "-fork" + new Date().getTime();
-    setCurrentFork(newForkId);
-
-    await fetchStory(forkInput, texts.length + 1, newForkId);
-    setForkInput("");
+  const handleMintContinuationClick = () => {
+    setIsContinuation(true); // Set the modal to continuation mode
+    setShowNewWorldModal(true);
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white bg-black">
       <WalletConnect />
       <button
-        onClick={() => setShowNewWorldModal(true)}
+        onClick={() => {
+          setIsContinuation(false); // Ensure modal is in "new world" mode
+          setShowNewWorldModal(true);
+        }}
         className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded flex items-center justify-center gap-2 transition duration-300 ease-in-out transform hover:scale-105"
       >
         <IoMdPlanet /> Mint a new world
@@ -88,6 +87,7 @@ export default function Home() {
           onSubmit={handleNewWorldSubmit}
           inputText={inputText}
           onInputChange={handleInputChange}
+          isContinuation={isContinuation}
         />
       )}
 
@@ -109,7 +109,7 @@ export default function Home() {
             key={index}
             item={item}
             onFork={() => setShowForkModal(true)}
-            onMintContinuation={() => setShowNewWorldModal(true)}
+            onMintContinuation={handleMintContinuationClick}
             isLatestPage={index === texts.length - 1}
           />
         ))}
