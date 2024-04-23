@@ -9,30 +9,38 @@ const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
       className="w-full h-auto rounded my-2"
     />
     <p className="text-gray-400">{item.content}</p>
-    <span className="text-blue-300">Arweave ID: </span>
-    <a
-      href={`https://arweave.net/${item.arweaveId}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-300 hover:underline"
-    >
-      {item.arweaveId}
-    </a>
-    {isLatestPage ? (
-      <button
-        onClick={onMintContinuation}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+    <div className="mt-2 flex items-center justify-start">
+      <a
+        href={`https://arweave.net/${item.arweaveId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-2 py-1 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center text-sm"
       >
-        Mint a continuation
-      </button>
-    ) : (
-      <button
-        onClick={() => onFork(item.page, item.forkId)}
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
-      >
-        Fork
-      </button>
-    )}
+        <img
+          src="/glyph_dark@1x.png"
+          alt="Arweave logo"
+          className="w-3 h-3 mr-1" // Smaller logo size
+        />
+        View on Arweave
+      </a>
+    </div>
+    <div className="flex justify-center w-full">
+      {isLatestPage ? (
+        <button
+          onClick={onMintContinuation}
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
+        >
+          Mint a continuation
+        </button>
+      ) : (
+        <button
+          onClick={() => onFork(item.page, item.forkId)}
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
+        >
+          Fork
+        </button>
+      )}
+    </div>
   </article>
 );
 
