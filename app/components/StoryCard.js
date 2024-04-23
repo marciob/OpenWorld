@@ -8,7 +8,9 @@ const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
       alt="Generated visual representation"
       className="w-full h-auto rounded my-2"
     />
-    <p className="text-gray-400">{item.content}</p>
+    <p className="text-white text-base font-medium leading-relaxed mb-4">
+      {item.content}
+    </p>
     <div className="mt-2 flex items-center justify-start">
       <a
         href={`https://arweave.net/${item.arweaveId}`}
@@ -19,7 +21,7 @@ const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
         <img
           src="/glyph_dark@1x.png"
           alt="Arweave logo"
-          className="w-3 h-3 mr-1" // Smaller logo size
+          className="w-3 h-3 mr-1"
         />
         View on Arweave
       </a>
