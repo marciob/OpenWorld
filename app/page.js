@@ -6,6 +6,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import StoryCard from "./components/StoryCard";
 import ForkModal from "./components/ForkModal";
 import NewWorldModal from "./components/NewWorldModal";
+import WalletConnect from "./components/WalletConnect";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
@@ -72,6 +73,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white bg-black">
+      <WalletConnect />
       <button
         onClick={() => setShowNewWorldModal(true)}
         className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded flex items-center justify-center gap-2 transition duration-300 ease-in-out transform hover:scale-105"
