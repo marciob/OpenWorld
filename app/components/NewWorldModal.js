@@ -29,12 +29,16 @@ const NewWorldModal = ({
         <button onClick={onClose} className="self-end text-white text-lg">
           <FaTimes />
         </button>
-        <h2 className="text-lg text-white mb-4">Mint a new world:</h2>
+        <h2 className="text-lg text-white mb-4">Start a New World</h2>
+        <p className="text-sm text-gray-400 mb-4">
+          Enter the first few lines of a story to mint a new world. Your input
+          will set the stage for an evolving narrative.
+        </p>
         <form onSubmit={onSubmit} className="w-full flex flex-col items-center">
           <textarea
             value={inputText}
             onChange={onInputChange}
-            placeholder="Enter the story to start a new world..."
+            placeholder="Begin the adventure... What happens first?"
             className="form-input mt-1 block w-full h-32 rounded-md bg-gray-700 border-gray-600"
             autoFocus
           />
