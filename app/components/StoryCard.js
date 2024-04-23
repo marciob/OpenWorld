@@ -1,3 +1,6 @@
+import { CgGitFork } from "react-icons/cg";
+import { FaPlay } from "react-icons/fa"; // Import the icon
+
 const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
   <article className="p-4 bg-gray-800 rounded shadow-xl border border-gray-700">
     <h2 className="text-lg font-semibold text-blue-300 mb-2">
@@ -32,13 +35,14 @@ const StoryCard = ({ item, onFork, onMintContinuation, isLatestPage }) => (
           onClick={onMintContinuation}
           className="mt-4 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
         >
-          Mint a continuation
+          <FaPlay className="mr-1" /> Mint a continuation
         </button>
       ) : (
         <button
           onClick={() => onFork(item.page, item.forkId)}
-          className="mt-4 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
         >
+          <CgGitFork className="mr-1" />
           Fork
         </button>
       )}
