@@ -23,14 +23,14 @@ const NewWorldModal = ({
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-gray-800 p-5 rounded-lg w-1/2 max-w-xl"
+        className="bg-gray-800 p-5 rounded-lg w-1/2 max-w-xl flex flex-col items-center"
         onClick={handleModalClick}
       >
-        <button onClick={onClose} className="text-white float-right text-lg">
+        <button onClick={onClose} className="self-end text-white text-lg">
           <FaTimes />
         </button>
         <h2 className="text-lg text-white mb-4">Mint a new world:</h2>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="w-full flex flex-col items-center">
           <textarea
             value={inputText}
             onChange={onInputChange}
@@ -40,9 +40,9 @@ const NewWorldModal = ({
           />
           <button
             type="submit"
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded hover:scale-105 transform transition duration-200 ease-out flex items-center justify-center"
           >
-            Submit
+            Mint
           </button>
         </form>
       </div>
