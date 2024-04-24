@@ -8,8 +8,10 @@ const WalletConnect = () => {
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
+        // Correctly using ethers to create a Web3Provider
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const accounts = await provider.send("eth_requestAccounts", []);
+        // Correctly using ethers utils to get the formatted address
         const account = ethers.utils.getAddress(accounts[0]);
         setWalletAddress(account);
       } catch (err) {
@@ -22,7 +24,7 @@ const WalletConnect = () => {
 
   const formatAddress = (address) => {
     return address
-      ? `${address.substring(0, 4)}...${address.substring(address.length - 4)}`
+      ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
       : "";
   };
 

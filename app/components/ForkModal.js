@@ -8,6 +8,8 @@ const ForkModal = ({
   onForkSubmit,
   forkInput,
   handleForkInputChange,
+  currentPage, // Passed in from the parent component
+  currentForkId, // Passed in from the parent component
 }) => {
   if (!isOpen) return null;
 
@@ -19,6 +21,11 @@ const ForkModal = ({
 
   const handleModalClick = (event) => {
     event.stopPropagation();
+  };
+
+  const handleSubmit = (e) => {
+    // Call the onForkSubmit with additional parameters
+    onForkSubmit(e, currentPage, currentForkId);
   };
 
   return (
@@ -41,7 +48,7 @@ const ForkModal = ({
           Create a new pathway for the story.
         </p>
         <form
-          onSubmit={onForkSubmit}
+          onSubmit={handleSubmit} // Use the local handleSubmit
           className="flex flex-col items-center w-full"
         >
           <textarea
@@ -49,7 +56,7 @@ const ForkModal = ({
             value={forkInput}
             onChange={handleForkInputChange}
             placeholder="Where does it go from here?"
-            className="form-input mt-1 block w-full h-32 rounded-md bg-gray-700 border-gray-600 focus:border-gray-600 focus:ring-0" // Adjusted focus styles
+            className="form-input mt-1 block w-full h-32 rounded-md bg-gray-700 border-gray-600 focus:border-gray-600 focus:ring-0"
             autoFocus
           />
           <button

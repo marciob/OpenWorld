@@ -12,19 +12,27 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
   const [texts, setTexts] = useState([]); // Store generated story parts
   const [currentFork, setCurrentFork] = useState("main"); // Handle different story forks
-  const [showNewWorldModal, setShowNewWorldModal] = useState(false); // Controls visibility of the new world modal
-  const [isContinuation, setIsContinuation] = useState(false); // Determines if the modal is for continuation
-  const [showForkModal, setShowForkModal] = useState(false); // Controls visibility of the fork modal
+  const [currentPage, setCurrentPage] = useState(1); // Keep track of the current page for forks
+  const [showNewWorldModal, setShowNewWorldModal] = useState(false);
+  const [isContinuation, setIsContinuation] = useState(false);
+  const [showForkModal, setShowForkModal] = useState(false);
   const [forkInput, setForkInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // State to handle loading
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e) => setInputText(e.target.value);
   const handleForkInputChange = (e) => setForkInput(e.target.value);
 
-  const fetchStory = async (text, page, forkId) => {
+  const onFork = (page, forkId) => {
+    setCurrentPage(page);
+    setCurrentFork(forkId);
+    setShowForkModal(true);
+  };
+
+  const fetchStory = async (text, page, forkId, isNewFork = false) => {
     setIsLoading(true);
-    setShowNewWorldModal(false); // Close modal immediately upon form submission
-    setShowForkModal(false); // Close modal immediately upon form submission
+    setShowNewWorldModal(false);
+    setShowForkModal(false);
+
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,11 +40,13 @@ export default function Home() {
         inputText: text,
         page: page,
         forkId: forkId,
+        isNewFork: isNewFork, // Make sure to send this to the backend
       }),
     });
 
     const data = await response.json();
     setIsLoading(false);
+
     if (response.ok) {
       setTexts((prevTexts) => [
         ...prevTexts,
@@ -57,55 +67,28 @@ export default function Home() {
     e.preventDefault();
     if (!inputText) return;
 
-    await fetchStory(inputText, 1, "main");
+    await fetchStory(inputText, currentPage, currentFork); // Use the updated currentPage
     setInputText("");
-    setIsContinuation(false); // Reset the continuation flag
+    setIsContinuation(false);
   };
 
   const handleMintContinuationClick = () => {
-    setIsContinuation(true); // Set the modal to continuation mode
+    setIsContinuation(true);
     setShowNewWorldModal(true);
+    // Assuming `texts` contains all current story parts and they are ordered correctly:
+    const lastStoryPart = texts[texts.length - 1];
+    setCurrentPage(lastStoryPart.page + 1); // Increment to next page number
   };
 
   const handleForkSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    if (!forkInput) return; // Check if the input is empty
+    e.preventDefault();
+    if (!forkInput) return;
 
-    setShowForkModal(false); // Close the modal immediately after validation, before the API request
-
-    setIsLoading(true); // Set loading state
-    const newForkId = currentFork + "-fork" + new Date().getTime(); // Create a unique fork ID
-    setCurrentFork(newForkId); // Update the current fork ID state
-
-    // Perform the API request
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        inputText: forkInput,
-        page: texts.length + 1, // Assuming 'texts' holds all pages and their forks
-        forkId: newForkId,
-      }),
-    });
-
-    const data = await response.json();
-    setIsLoading(false); // Reset loading state after fetch completion
-
-    if (response.ok) {
-      setTexts((prevTexts) => [
-        ...prevTexts,
-        {
-          content: data.result,
-          page: data.page,
-          forkId: data.forkId,
-          arweaveId: data.arweaveId,
-          imageUrl: data.image,
-        },
-      ]);
-      setForkInput(""); // Clear the fork input field after successful submission
-    } else {
-      console.error("Failed to fetch story:", data.error);
-    }
+    setShowForkModal(false);
+    setIsLoading(true);
+    // Ensure isNewFork is set to true when creating a new fork
+    await fetchStory(forkInput, currentPage + 1, currentFork, true);
+    setForkInput("");
   };
 
   return (
@@ -113,7 +96,7 @@ export default function Home() {
       <WalletConnect />
       <button
         onClick={() => {
-          setIsContinuation(false); // Ensure modal is in "new world" mode
+          setIsContinuation(false);
           setShowNewWorldModal(true);
         }}
         className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded flex items-center justify-center gap-2 transition duration-300 ease-in-out transform hover:scale-105"
@@ -136,7 +119,7 @@ export default function Home() {
         <ForkModal
           isOpen={showForkModal}
           onClose={() => setShowForkModal(false)}
-          onForkSubmit={handleForkSubmit} // Pass the function here
+          onForkSubmit={handleForkSubmit}
           forkInput={forkInput}
           handleForkInputChange={handleForkInputChange}
         />
@@ -149,7 +132,7 @@ export default function Home() {
           <StoryCard
             key={index}
             item={item}
-            onFork={() => setShowForkModal(true)}
+            onFork={onFork}
             onMintContinuation={handleMintContinuationClick}
             isLatestPage={index === texts.length - 1}
           />
