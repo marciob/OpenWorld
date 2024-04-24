@@ -67,6 +67,47 @@ export default function Home() {
     setShowNewWorldModal(true);
   };
 
+  const handleForkSubmit = async (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+    if (!forkInput) return; // Check if the input is empty
+
+    setShowForkModal(false); // Close the modal immediately after validation, before the API request
+
+    setIsLoading(true); // Set loading state
+    const newForkId = currentFork + "-fork" + new Date().getTime(); // Create a unique fork ID
+    setCurrentFork(newForkId); // Update the current fork ID state
+
+    // Perform the API request
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        inputText: forkInput,
+        page: texts.length + 1, // Assuming 'texts' holds all pages and their forks
+        forkId: newForkId,
+      }),
+    });
+
+    const data = await response.json();
+    setIsLoading(false); // Reset loading state after fetch completion
+
+    if (response.ok) {
+      setTexts((prevTexts) => [
+        ...prevTexts,
+        {
+          content: data.result,
+          page: data.page,
+          forkId: data.forkId,
+          arweaveId: data.arweaveId,
+          imageUrl: data.image,
+        },
+      ]);
+      setForkInput(""); // Clear the fork input field after successful submission
+    } else {
+      console.error("Failed to fetch story:", data.error);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-white bg-black">
       <WalletConnect />
@@ -95,7 +136,7 @@ export default function Home() {
         <ForkModal
           isOpen={showForkModal}
           onClose={() => setShowForkModal(false)}
-          onForkSubmit={handleForkSubmit}
+          onForkSubmit={handleForkSubmit} // Pass the function here
           forkInput={forkInput}
           handleForkInputChange={handleForkInputChange}
         />
